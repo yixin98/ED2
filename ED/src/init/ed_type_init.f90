@@ -68,6 +68,14 @@ module ed_type_init
       real(kind=4)                       :: slpotfc    ! Matric potential of field cap.
       !----- External function. -----------------------------------------------------------!
       real(kind=4)           , external  :: sngloff ! Safe double -> single precision
+      
+      !------------------------------------------------------------------------------------!
+
+      ! Set init the curr coid, set the prev the same as curr
+      cpatch%curr_coid_glob(ico) = init_coid_glob()
+      cpatch%prev_coid_glob(ico) = cpatch%curr_coid_glob(ico)
+
+
       !------------------------------------------------------------------------------------!
 
 
@@ -428,6 +436,7 @@ module ed_type_init
       cpatch%fmean_leaf_fliq         (ico) = 0.0
       cpatch%fmean_leaf_gsw          (ico) = 0.0
       cpatch%fmean_leaf_gbw          (ico) = 0.0
+      cpatch%fmean_lint_co2          (ico) = 0.0
       cpatch%fmean_wood_energy       (ico) = 0.0
       cpatch%fmean_wood_water        (ico) = 0.0
       cpatch%fmean_wood_hcap         (ico) = 0.0
@@ -532,6 +541,7 @@ module ed_type_init
          cpatch%dmean_leaf_fliq         (ico) = 0.0
          cpatch%dmean_leaf_gsw          (ico) = 0.0
          cpatch%dmean_leaf_gbw          (ico) = 0.0
+         cpatch%dmean_lint_co2          (ico) = 0.0
          cpatch%dmean_wood_energy       (ico) = 0.0
          cpatch%dmean_wood_water        (ico) = 0.0
          cpatch%dmean_wood_hcap         (ico) = 0.0
@@ -619,6 +629,7 @@ module ed_type_init
          cpatch%mmean_leaf_fliq           (ico) = 0.0
          cpatch%mmean_leaf_gsw            (ico) = 0.0
          cpatch%mmean_leaf_gbw            (ico) = 0.0
+         cpatch%mmean_lint_co2            (ico) = 0.0
          cpatch%mmean_wood_energy         (ico) = 0.0
          cpatch%mmean_wood_water          (ico) = 0.0
          cpatch%mmean_wood_hcap           (ico) = 0.0
@@ -749,6 +760,7 @@ module ed_type_init
          cpatch%qmean_leaf_fliq         (:,ico) = 0.0
          cpatch%qmean_leaf_gsw          (:,ico) = 0.0
          cpatch%qmean_leaf_gbw          (:,ico) = 0.0
+         cpatch%qmean_lint_co2          (:,ico) = 0.0
          cpatch%qmean_wood_energy       (:,ico) = 0.0
          cpatch%qmean_wood_water        (:,ico) = 0.0
          cpatch%qmean_wood_hcap         (:,ico) = 0.0
@@ -2012,6 +2024,7 @@ module ed_type_init
          cgrid%fmean_leaf_fliq            (ipy) = 0.0
          cgrid%fmean_leaf_gsw             (ipy) = 0.0
          cgrid%fmean_leaf_gbw             (ipy) = 0.0
+         cgrid%fmean_lint_co2             (ipy) = 0.0
          cgrid%fmean_wood_energy          (ipy) = 0.0
          cgrid%fmean_wood_water           (ipy) = 0.0
          cgrid%fmean_wood_water_im2       (ipy) = 0.0
@@ -2190,6 +2203,7 @@ module ed_type_init
             cgrid%dmean_leaf_fliq            (ipy) = 0.0
             cgrid%dmean_leaf_gsw             (ipy) = 0.0
             cgrid%dmean_leaf_gbw             (ipy) = 0.0
+            cgrid%dmean_lint_co2             (ipy) = 0.0
             cgrid%dmean_wood_energy          (ipy) = 0.0
             cgrid%dmean_wood_water           (ipy) = 0.0
             cgrid%dmean_wood_water_im2       (ipy) = 0.0
@@ -2347,6 +2361,7 @@ module ed_type_init
             cgrid%mmean_leaf_fliq            (ipy) = 0.0
             cgrid%mmean_leaf_gsw             (ipy) = 0.0
             cgrid%mmean_leaf_gbw             (ipy) = 0.0
+            cgrid%mmean_lint_co2             (ipy) = 0.0
             cgrid%mmean_wood_energy          (ipy) = 0.0
             cgrid%mmean_wood_water           (ipy) = 0.0
             cgrid%mmean_wood_water_im2       (ipy) = 0.0
@@ -2589,6 +2604,7 @@ module ed_type_init
             cgrid%qmean_leaf_fliq          (:,ipy) = 0.0
             cgrid%qmean_leaf_gsw           (:,ipy) = 0.0
             cgrid%qmean_leaf_gbw           (:,ipy) = 0.0
+            cgrid%qmean_lint_co2           (:,ipy) = 0.0
             cgrid%qmean_wood_energy        (:,ipy) = 0.0
             cgrid%qmean_wood_water         (:,ipy) = 0.0
             cgrid%qmean_wood_water_im2     (:,ipy) = 0.0
@@ -2943,6 +2959,48 @@ module ed_type_init
    end subroutine ed_init_viable
    !=======================================================================================!
    !=======================================================================================!
+
+   
+   !=======================================================================================!
+   ! Create new global cohort id when new cohorts are created
+   ! Currently, there are 4 pathways for new cohort creation:
+   ! (1) new cohort from model initialization
+   ! (2) new cohort from reproduction
+   ! (3) new cohort from patch disturbance due to new patch
+   ! (4) new cohort from cohort split
+   ! (1) & (2) both call init_ed_cohort_vars()
+   ! (3) and (4) will both call cohort_split [NOTE: has to mannully set coid to zero under case (3)]
+   ! Therefore, we only need to call init_coid_glob in the two key subroutines ->
+   ! init_ed_cohort_vars and cohort_split
+   !=======================================================================================!
+   integer function init_coid_glob()
+      implicit none
+
+      !----- Arguments --------------------------------------------------------------------!
+      !------------------------------------------------------------------------------------!
+
+      !----- Local Variable --------------------------------------------------------------------!
+      integer, save :: coid_counter = 0
+      ! counter for total coid used
+      ! this will be saved throughout the simulation
+
+      !------------------------------------------------------------------------------------!
+
+      coid_counter = coid_counter + 1
+
+
+      ! always return the coid larger than existing maximum
+      ! this will avoid conflict in coid values
+      init_coid_glob = coid_counter
+
+      return
+   end function init_coid_glob
+   !=======================================================================================!
+
+   !=======================================================================================!
+
+
+
 end module ed_type_init
 !==========================================================================================!
 !==========================================================================================!

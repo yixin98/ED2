@@ -70,7 +70,15 @@ subroutine load_ed_ecosystem_params()
    pft_name16(14) = 'Late_savannah   '
    pft_name16(15) = 'Araucaria       '
    pft_name16(16) = 'Subtrop_C3_grass'
-   pft_name16(17) = 'Liana           '
+   pft_name16(17) = 'Liana' 
+   pft_name16(18) = 'Early_tropical  '
+   pft_name16(19) = 'Mid_tropical    '
+   pft_name16(20) = 'Late_tropical   '
+   pft_name16(21) = 'Early_tropical  '
+   pft_name16(22) = 'Mid_tropical    '
+   pft_name16(23) = 'Late_tropical   '
+
+
    !---------------------------------------------------------------------------------------!
 
 
@@ -85,6 +93,7 @@ subroutine load_ed_ecosystem_params()
    is_tropical(15)    = .true.
    is_tropical(16)    = .true.
    is_tropical(17)    = .true.
+   is_tropical(18:23) = .true.
    !---------------------------------------------------------------------------------------!
 
 
@@ -97,6 +106,7 @@ subroutine load_ed_ecosystem_params()
    is_savannah(1:11)  = .false.
    is_savannah(12:14) = .true.
    is_savannah(15:17) = .false.
+   is_savannah(18:23) = .false.
    !---------------------------------------------------------------------------------------!
 
 
@@ -106,6 +116,7 @@ subroutine load_ed_ecosystem_params()
    !---------------------------------------------------------------------------------------!
    is_liana(1:16)  = .false.
    is_liana(17)    = .true.
+   is_liana(18:23) = .false.
    !---------------------------------------------------------------------------------------!
 
 
@@ -118,6 +129,7 @@ subroutine load_ed_ecosystem_params()
    is_conifer(9:14)  = .false.
    is_conifer(15)    = .true.
    is_conifer(16:17) = .false.
+   is_conifer(18:23) = .false.
    !---------------------------------------------------------------------------------------!
 
 
@@ -131,6 +143,7 @@ subroutine load_ed_ecosystem_params()
    is_grass(6:15)  = .false.
    is_grass(16)    = .true.
    is_grass(17)    = .false.
+   is_grass(18:23) = .false.
    !---------------------------------------------------------------------------------------!
 
 
@@ -9024,7 +9037,7 @@ subroutine init_derived_params_after_xml()
    ! non-zero.   Otherwise, we make it 1.d0, which is the limit of that equation when      !
    ! phi2 approaches zero.                                                                 !
    !---------------------------------------------------------------------------------------!
-   where (orient_factor(:) == 0.d0)
+   where (abs(orient_factor(:)) < almost_zero)
       mu_bar(:) = 1.d0
    elsewhere
       mu_bar(:) = ( 1.d0 - phi1(:) * log(1.d0 + phi2(:) / phi1(:)) / phi2(:) ) / phi2(:)

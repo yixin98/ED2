@@ -624,12 +624,9 @@ $ED_NL
    !           between the wilting point and field capacity).                              !
    ! STGOFF  - initial temperature offset (soil temperature = air temperature + offset)    !
    !---------------------------------------------------------------------------------------!
-   NL%SLZ     =   -8.000,-7.072,-6.198,-5.380,-4.617,-3.910,-3.259,-2.664,-2.127,-1.648,
-                  -1.228,-0.866,-0.566,-0.326,-0.150,-0.040
-   NL%SLMSTR  =    1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000,
-                   1.000, 1.000, 1.000, 1.000, 1.000, 1.000
-   NL%STGOFF  =    0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000,
-                   0.000, 0.000, 0.000, 0.000, 0.000, 0.000
+   NL%SLZ     =   -8.000,-7.072,-6.198,-5.380,-4.617,-3.910,-3.259,-2.664,-2.127,-1.648,-1.228,-0.866,-0.566,-0.326,-0.150,-0.040
+   NL%SLMSTR  =    1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000
+   NL%STGOFF  =    0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000
    !---------------------------------------------------------------------------------------!
 
 
@@ -1244,6 +1241,13 @@ $ED_NL
    ! 1. (ED-2.2 alternative) Correct the fraction of storage allocated to heartwood, so    !
    !    storage has sufficient carbon to increment all living tissues in the upcoming      !
    !    month.  This option will eventually become the default.                            !
+   ! 2. (ED-2.2 alternative) Same as 1 but use the current biomass distribution within     !
+   !    the cohort to calculate the fraction of storage alloocated to heartwood. This      !
+   !    tends to reserve too much carbon for future live tissue growth compared with       !
+   !    option 1, but the bias is small at annual scale                                    !
+   !                                                                                       !
+   !    Note: Option 1 is not fully compatible when IALLOM == 4 (leaf area based allometry)!
+   !          and TRAIT_PLASTICITY_SCHEME is non zero                                      !
    !---------------------------------------------------------------------------------------!
    NL%ISTRUCT_GROWTH_SCHEME = 1
    !---------------------------------------------------------------------------------------!

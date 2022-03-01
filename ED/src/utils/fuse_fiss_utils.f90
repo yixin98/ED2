@@ -1689,6 +1689,8 @@ module fuse_fiss_utils
       use stable_cohorts       , only : is_resolvable                 ! ! sub-routine
       use plant_hydro          , only : rwc2tw                        & ! sub-routine
                                       , twi2twe                       ! ! sub-routine
+      use ed_type_init         , only : init_coid_glob                ! ! function
+
       implicit none
       !----- Constants --------------------------------------------------------------------!
       real                   , parameter   :: epsilon=0.0001     ! Tweak factor...
@@ -1914,6 +1916,27 @@ module fuse_fiss_utils
                                              ,old_leaf_water,old_wood_water                &
                                              ,old_leaf_water_im2,old_wood_water_im2        &
                                              ,.true.,is_initial)
+                  !----- Update coid_glob -------------------------------------!
+
+                  ! first always set the curr_coid_glob(inew) to zero
+                  ! new cohort
+                  cpatch%curr_coid_glob(inew) = 0
+
+                  ! check whether curr_coid_glob is zero
+                  ! this would happen if ico is a new cohort in a new patch after disturbance 
+                  ! [check dynamics/disturbance.f90]
+                  if (cpatch%curr_coid_glob(ico) == 0) then
+                      ! both cohorts are new
+                      ! set the prev coid of inew to be same as ico
+                      ! create new coid for each cohort
+                      cpatch%prev_coid_glob(inew) = cpatch%prev_coid_glob(ico)
+                  else
+                      ! ico is a established cohort
+                      ! we set the prev_coid of the new one to be curr_coid_glob(ico)
+                      cpatch%prev_coid_glob(inew) = cpatch%curr_coid_glob(ico)
+
+                  endif
+
                   !----- Update the stability status. -------------------------------------!
                   call is_resolvable(csite,ipa,ico ,is_initial,.false.                     &
                                     ,'split_cohorts (old)')
@@ -1965,6 +1988,16 @@ module fuse_fiss_utils
          !---------------------------------------------------------------------------------!
       end do splitloop
       !------------------------------------------------------------------------------------!
+
+      ! We have finished cohort split for cpatch now
+      ! let's update curr_coid_glob (prev_coid_glob should be all set)
+      ! The main reason to update curr_coid_glob outside of the slitloop is that some cohorts that
+      ! are not splitting might also need initiaztion of coid (due to distrubance-induced new patch)
+      do ico = 1, cpatch%ncohorts
+          if (cpatch%curr_coid_glob(ico) == 0) then
+              cpatch%curr_coid_glob(ico) = init_coid_glob()
+          endif
+      enddo
 
       return
    end subroutine split_cohorts
@@ -2117,6 +2150,18 @@ module fuse_fiss_utils
       !------------------------------------------------------------------------------------!
 
 
+      !------------------------------------------------------------------------------------!
+      ! update coid_glob
+
+      ! always use the coid_glob from the cohort with more basal area
+      ! i.e. we will not be able to tracing growth history of cohorts with smaller basal area
+      ! this means we only update coid_glob when rba < 0.5
+      if (rba < 0.5) then
+          cpatch%curr_coid_glob(recc) = cpatch%curr_coid_glob(donc)
+          cpatch%prev_coid_glob(recc) = cpatch%prev_coid_glob(donc)
+      endif
+
+      !------------------------------------------------------------------------------------!
 
 
       !------------------------------------------------------------------------------------!
@@ -2878,6 +2923,8 @@ module fuse_fiss_utils
                                              + cpatch%fmean_leaf_gsw        (donc) * dlai
          cpatch%fmean_leaf_gbw        (recc) = cpatch%fmean_leaf_gbw        (recc) * rlai  &
                                              + cpatch%fmean_leaf_gbw        (donc) * dlai
+         cpatch%fmean_lint_co2        (recc) = cpatch%fmean_lint_co2        (recc) * rlai  &
+                                             + cpatch%fmean_lint_co2        (donc) * dlai
          cpatch%fmean_fs_open         (recc) = cpatch%fmean_fs_open         (recc) * rlai  &
                                              + cpatch%fmean_fs_open         (donc) * dlai
          cpatch%fmean_fsw             (recc) = cpatch%fmean_fsw             (recc) * rlai  &
@@ -3247,6 +3294,8 @@ module fuse_fiss_utils
                                              + cpatch%dmean_leaf_gsw        (donc) * dlai
          cpatch%dmean_leaf_gbw        (recc) = cpatch%dmean_leaf_gbw        (recc) * rlai  &
                                              + cpatch%dmean_leaf_gbw        (donc) * dlai
+         cpatch%dmean_lint_co2        (recc) = cpatch%dmean_lint_co2        (recc) * rlai  &
+                                             + cpatch%dmean_lint_co2        (donc) * dlai
          cpatch%dmean_fs_open         (recc) = cpatch%dmean_fs_open         (recc) * rlai  &
                                              + cpatch%dmean_fs_open         (donc) * dlai
          cpatch%dmean_fsw             (recc) = cpatch%dmean_fsw             (recc) * rlai  &
@@ -3733,6 +3782,8 @@ module fuse_fiss_utils
                                              + cpatch%mmean_leaf_gsw        (donc) * dlai
          cpatch%mmean_leaf_gbw        (recc) = cpatch%mmean_leaf_gbw        (recc) * rlai  &
                                              + cpatch%mmean_leaf_gbw        (donc) * dlai
+         cpatch%mmean_lint_co2        (recc) = cpatch%mmean_lint_co2        (recc) * rlai  &
+                                             + cpatch%mmean_lint_co2        (donc) * dlai
          cpatch%mmean_fs_open         (recc) = cpatch%mmean_fs_open         (recc) * rlai  &
                                              + cpatch%mmean_fs_open         (donc) * dlai
          cpatch%mmean_fsw             (recc) = cpatch%mmean_fsw             (recc) * rlai  &
@@ -4204,6 +4255,8 @@ module fuse_fiss_utils
                                              + cpatch%qmean_leaf_gsw      (:,donc) * dlai
          cpatch%qmean_leaf_gbw      (:,recc) = cpatch%qmean_leaf_gbw      (:,recc) * rlai  &
                                              + cpatch%qmean_leaf_gbw      (:,donc) * dlai
+         cpatch%qmean_lint_co2      (:,recc) = cpatch%qmean_lint_co2      (:,recc) * rlai  &
+                                             + cpatch%qmean_lint_co2      (:,donc) * dlai
          cpatch%qmean_fs_open       (:,recc) = cpatch%qmean_fs_open       (:,recc) * rlai  &
                                              + cpatch%qmean_fs_open       (:,donc) * dlai
          cpatch%qmean_fsw           (:,recc) = cpatch%qmean_fsw           (:,recc) * rlai  &

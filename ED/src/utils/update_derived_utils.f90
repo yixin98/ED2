@@ -193,6 +193,9 @@ module update_derived_utils
       !----- Update rooting depth ---------------------------------------------------------!
       cpatch%krdepth(ico) = size2krdepth(cpatch%hite(ico),cpatch%dbh(ico),ipft,lsl)
       !if new root depth is smaller keep the old one
+
+
+
       return
    end subroutine update_cohort_derived_props
    !=======================================================================================!
@@ -2086,7 +2089,6 @@ module update_derived_utils
    end subroutine update_cohort_extensive_props
    !=======================================================================================!
    !=======================================================================================!
-
 
 
 
