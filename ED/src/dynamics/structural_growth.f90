@@ -1298,6 +1298,10 @@ module structural_growth
       ! growth of heartwood and living tissues (option 1).                                 !
       !------------------------------------------------------------------------------------!
       select case (istruct_growth_scheme)
+      case (2)
+         f_bdeada   = f_growth * bdeada_in / bevery_in
+         f_bdeadb   = f_growth * bdeadb_in / bevery_in
+         f_bstorage = f_bstorage + f_growth - f_bdeada - f_bdeadb 
       case (1)
          !----- Find the new biomass with the storage inputs. -----------------------------!
          call expand_bevery(ipft,bevery_aim,dbh_aim,hite_aim,bleaf_aim,broot_aim           &

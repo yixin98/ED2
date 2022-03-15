@@ -1,4 +1,4 @@
-!==========================================================================================!
+!=========================================================================================!
 !==========================================================================================!
 !     This is the main loader of ecosystem parameters.  Since some compilers do not under- !
 ! stand the assignment in the modules when the variable is not a constant (parameter),     !
@@ -8397,7 +8397,7 @@ subroutine init_derived_params_after_xml()
    real(kind=8)                      :: lnexphigh8
    real(kind=8)                      :: thigh_fun8
    !----- Local constants. ----------------------------------------------------------------!
-   real(kind=4)          , parameter :: kplastic_ref_lai = 4.0 ! used for trait_plasticity == 3
+   real(kind=4)          , parameter :: kplastic_ref_lai = 6.0 ! used for trait_plasticity == 3
    character(len=str_len), parameter :: zero_table_fn = 'pft_sizes.txt'
    character(len=str_len), parameter :: photo_file    = 'photo_param.txt'
    character(len=str_len), parameter :: allom_file    = 'allom_param.txt'
@@ -9362,7 +9362,7 @@ subroutine init_derived_params_after_xml()
          select case (trait_plasticity_scheme)
          case (3)
             if (is_tropical(ipft) .and. (.not. is_grass(ipft))) then
-                kplastic_vm0(ipft) = - 1.0 * (0.811 * log(Vcmax25(ipft)) - 2.22)           &
+                kplastic_vm0(ipft) = - 1.0 * (0.0121 * Vcmax25(ipft) + 0.31055)           &
                                    / kplastic_ref_lai
             endif
          end select
@@ -9395,7 +9395,7 @@ subroutine init_derived_params_after_xml()
          case (3)
             !----- Make sure this is applied to tropical trees only. ----------------------!
             if (is_tropical(ipft) .and. (.not. is_grass(ipft))) then
-                kplastic_rd0(ipft) = - 1.0 * (0.559 * log(Rdark25) + 0.82)                 &
+                kplastic_rd0(ipft) = - 1.0 * (0.9487 * Rdark25 + 0.5872)                 &
                                    / kplastic_ref_lai
             end if
             !------------------------------------------------------------------------------!
@@ -9432,8 +9432,7 @@ subroutine init_derived_params_after_xml()
          select case (trait_plasticity_scheme)
          case (3)
             if (is_tropical(ipft) .and. (.not. is_grass(ipft))) then
-                kplastic_SLA(ipft) = (0.214 * log(1. / SLA(ipft) * 2000.) - 0.088)         &
-                                   / kplastic_ref_lai
+                kplastic_SLA(ipft) = 0.9962 / kplastic_ref_lai
             endif
          end select
          !---------------------------------------------------------------------------------!
@@ -9469,8 +9468,7 @@ subroutine init_derived_params_after_xml()
          select case (trait_plasticity_scheme)
          case (3)
             if (is_tropical(ipft) .and. (.not. is_grass(ipft))) then
-                kplastic_LL(ipft) = -1.0 * (0.504 * log(Vcmax25(ipft) * SLA(ipft) / 2000.) &
-                                           - 0.401) / kplastic_ref_lai
+                kplastic_LL(ipft) = 1.2 / kplastic_ref_lai
             endif
          end select
 
