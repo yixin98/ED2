@@ -666,8 +666,8 @@ module growth_balive
       !     In case this simulation allows trait plasticity, compute the correction factor !
       ! for turnover.                                                                      !
       !------------------------------------------------------------------------------------!
-      dynamic_trait =       ( trait_plasticity_scheme == 1  .or. phenology(ipft) == 3)     &
-                      .and. ( leaf_turnover_rate(ipft) > 0. )
+      dynamic_trait = ( trait_plasticity_scheme == 1  .or. phenology(ipft) == 3            &
+                      .or. trait_plasticity_scheme == 3) .and. ( leaf_turnover_rate(ipft) > 0. )
       if (dynamic_trait) then
          !----- Trait plasticity, or light-controlled phenology. --------------------------!
          fp_turnover = 12. / (cpatch%llspan(ico) * leaf_turnover_rate(ipft))
@@ -1379,7 +1379,7 @@ module growth_balive
             !        net growth (i.e. increment from the value of btissue before           !
             !        maintenance was applied) is the same every day.                       !
             !------------------------------------------------------------------------------!
-            if ( (iallom == 3 .or. iallom == 4)                                            &
+            if ( (iallom == 3 .or. iallom == 4 .or. iallom == 5)                           &
                 .and. (.not. (is_grass(ipft) .and. igrass == 1)) ) then
                if (delta_bleaf >= tiny_num) then
                   gtf_bleaf = ( cpatch%leaf_maintenance(ico)                               &

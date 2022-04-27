@@ -40,6 +40,9 @@ module allometry
             !----- Poorter et al. (2006) allometry. ---------------------------------------!
             h2dbh =  ( log(hgt_ref(ipft) / ( hgt_ref(ipft) - h ) ) / b1Ht(ipft) )          &
                ** ( 1.0 / b2Ht(ipft) )
+        case (5)
+            !----- Martinez Cano et al.(2019)---------------------------------- !
+            h2dbh = (21.8 * h / (58 - h) ) ** 1.37
          case default
             !----- Default ED-2.1 allometry. ----------------------------------------------!
             h2dbh = exp((log(h)-b1Ht(ipft))/b2Ht(ipft))
@@ -101,6 +104,9 @@ module allometry
                   !----- Weibull function. ------------------------------------------------!
                   lnexp = max(lnexp_min,min(lnexp_max,b1Ht(ipft) * mdbh ** b2Ht(ipft)))
                   dbh2h = hgt_ref(ipft) * (1. - exp(-lnexp))
+               case (5)
+                  !----- Martinez Cano et al. (2019) --------!
+                  dbh2h = 58 * (mdbh ** 0.73) / (21.8 + mdbh ** 0.73)
                case default
                   !----- Default ED-2.1 allometry. ----------------------------------------!
                   dbh2h = exp (b1Ht(ipft) + b2Ht(ipft) * log(mdbh) )
@@ -164,7 +170,7 @@ module allometry
          size2bd = 0.0
       else
          !----- Depending on the allometry, size means DBH or DBH^2 * Height. -------------!
-         if ( (iallom == 3 .or. iallom == 4)                            &
+         if ( (iallom == 3 .or. iallom == 4 .or. iallom == 5)                            &
               .and. is_tropical(ipft) .and. (.not. is_liana(ipft))) then
             size = dbh * dbh * hite
          else
@@ -341,7 +347,7 @@ module allometry
       !     Find leaf biomass depending on the allometry.  The new allometry uses dbh and  !
       ! height, whereas the old allometry uses dbh only.                                   !
       !------------------------------------------------------------------------------------!
-      if ((iallom == 3 .or. iallom == 4)                                                  &
+      if ((iallom == 3 .or. iallom == 4 .or. iallom == 5)                                  &
           .and. is_tropical(ipft) .and. (.not. is_liana(ipft))) then
          size = mdbh * mdbh * hite
       else 
@@ -355,9 +361,14 @@ module allometry
       !      For iallom == 4 (tropical trees), b1Bl and b2Bl represents leaf area based    !
       ! allometry, we need to convert it to biomass using cohort-level SLA.                !
       !------------------------------------------------------------------------------------!
-      if (iallom == 4 .and. is_tropical(ipft) .and. (.not. is_liana(ipft))) then
+      if ((iallom == 4 .or. iallom == 5) .and. is_tropical(ipft)                           &
+           .and. (.not. is_liana(ipft))) then
          !----- Use specific form (notice that C2B was cancelled out. ---------------------!
-         size2bl = b1Bl(ipft) / sla_in * size ** b2Bl(ipft)
+         if (hite < 40.0) then
+             size2bl = b1Bl(ipft) / sla_in * size ** b2Bl(ipft)
+         else 
+             size2bl = b1Bl(ipft) / sla_in
+         end if
          !---------------------------------------------------------------------------------!
       else
          !----- Use the general functional form. ------------------------------------------!
@@ -474,7 +485,7 @@ module allometry
       ! bleaf with sla_in to get leaf area because l1DBH and l2DBH are based on leaf area  !
       !------------------------------------------------------------------------------------!
       select case (iallom)
-      case (4)
+      case (4,5)
         mdbh = l1DBH(ipft) * (bleaf * sla_in) ** l2DBH(ipft)
       case default
         mdbh = l1DBH(ipft) * bleaf ** l2DBH(ipft)
@@ -608,7 +619,7 @@ module allometry
 
 
          !----- Find the nominal crown area. ----------------------------------------------!
-         if ( (iallom == 3 .or. iallom == 4)                            &
+         if ( (iallom == 3 .or. iallom == 4 .or. iallom == 5)                            &
              .and. is_tropical(ipft) .and. (.not. is_liana(ipft))) then
             size = mdbh * mdbh * hite
          else
@@ -889,7 +900,7 @@ module allometry
             !------------------------------------------------------------------------------!
             size     = dbh * dbh * hite
             !------------------------------------------------------------------------------!
-         case (1,2,4)
+         case (1,2,4,5)
             !------------------------------------------------------------------------------!
             !    This is just a test allometry, that imposes root depth to be 0.5 m for    !
             ! plants that are 0.15-m tall, and 5.0 m for plants that are 35-m tall.        !
@@ -1466,7 +1477,7 @@ module allometry
 
 
          !-----Find WAI. ------------------------------------------------------------------!
-         if ( (iallom == 3 .or. iallom == 4)                            &
+         if ( (iallom == 3 .or. iallom == 4 .or. iallom == 5)                            &
               .and. is_tropical(ipft) .and. (.not. is_liana(ipft))) then
             size = mdbh * mdbh * cpatch%hite(ico)
          else

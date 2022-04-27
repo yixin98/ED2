@@ -84,9 +84,9 @@ module plant_hydro
       real                                :: c_leaf      !< leaf capacitance       [   kg/m]
       logical                             :: track_hydraulics !< whether track hydraulics
       !----- Variables for debugging purposes ---------------------------------------------!
-      integer, parameter                  :: dco        = 0 ! the cohort to debug
+      integer, parameter                  :: dco        = 11 ! the cohort to debug
       logical, dimension(3)               :: error_flag
-      logical, parameter                  :: debug_flag = .false.
+      logical, parameter                  :: debug_flag = .true.
       character(len=13)     , parameter   :: efmt       = '(a,1x,es12.5)'
       character(len=9)      , parameter   :: ifmt       = '(a,1x,i5)'
       character(len=9)      , parameter   :: lfmt       = '(a,1x,l1)'
@@ -554,8 +554,8 @@ module plant_hydro
       character(len=13) , parameter         :: efmt       = '(a,1x,es12.5)'
       character(len=9)  , parameter         :: ifmt       = '(a,1x,i5)'
       character(len=9)  , parameter         :: lfmt       = '(a,1x,l1)'
-      integer           , parameter         :: dco        = 0
-      logical           , parameter         :: debug_flag = .false.
+      integer           , parameter         :: dco        = 11
+      logical           , parameter         :: debug_flag = .true.
       !----- External function ------------------------------------------------------------!
       real(kind=4)      , external          :: sngloff       ! Safe dble 2 single precision
       !------------------------------------------------------------------------------------!

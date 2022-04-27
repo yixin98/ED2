@@ -394,7 +394,7 @@ module update_derived_utils
       ! Since SLA is changed, we might need to adjust leaf biomass if leaf area based 
       ! allometry is used
       select case (iallom)
-      case (4)
+      case (4, 5)
         bl_max = size2bl(cpatch%dbh(ico),cpatch%hite(ico),cpatch%sla(ico),cpatch%pft(ico))
 
         if (cpatch%bleaf(ico) > bl_max) then
