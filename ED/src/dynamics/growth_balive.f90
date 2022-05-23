@@ -666,8 +666,8 @@ module growth_balive
       !     In case this simulation allows trait plasticity, compute the correction factor !
       ! for turnover.                                                                      !
       !------------------------------------------------------------------------------------!
-      dynamic_trait =       ( trait_plasticity_scheme == 1  .or. phenology(ipft) == 3)     &
-                      .and. ( leaf_turnover_rate(ipft) > 0. )
+      dynamic_trait =       ( trait_plasticity_scheme == 1  .or. phenology(ipft) == 3      &
+                      .or. trait_plasticity_scheme == 3) .and. ( leaf_turnover_rate(ipft) > 0. )
       if (dynamic_trait) then
          !----- Trait plasticity, or light-controlled phenology. --------------------------!
          fp_turnover = 12. / (cpatch%llspan(ico) * leaf_turnover_rate(ipft))
