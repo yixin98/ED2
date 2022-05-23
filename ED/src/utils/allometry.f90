@@ -357,7 +357,11 @@ module allometry
       !------------------------------------------------------------------------------------!
       if (iallom == 4 .and. is_tropical(ipft) .and. (.not. is_liana(ipft))) then
          !----- Use specific form (notice that C2B was cancelled out. ---------------------!
-         size2bl = b1Bl(ipft) / sla_in * size ** b2Bl(ipft)
+        ! if (hite >=44) then
+            !size2bl = b1Bl(ipft) / sla_in
+         !else
+            size2bl = b1Bl(ipft) / sla_in * size ** b2Bl(ipft)
+         !end if
          !---------------------------------------------------------------------------------!
       else
          !----- Use the general functional form. ------------------------------------------!
