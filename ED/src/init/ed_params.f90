@@ -2938,6 +2938,7 @@ subroutine init_pft_alloc_params()
                              , eplastic_sla          & ! intent(out)
                              , kplastic_LL           & ! intent(out)
                              , laimax_plastic        & ! intent(out)
+                             , kplastic_ref_lai      & ! intent(out)
                              , LMA_slope             & ! intent(out)
                              , sapwood_ratio         & ! intent(out)
                              , f_bstorage_init       & ! intent(out)
@@ -3106,11 +3107,11 @@ subroutine init_pft_alloc_params()
             case ( 1, 5,16) ! Grasses
                rho(ipft) = 0.080
             case (    2,12) ! Early-successional tropical/savannah.
-               rho(ipft) = 0.450
+               rho(ipft) = 0.534
             case (    3,13) ! Mid-successional tropical/savannah.
-               rho(ipft) = 0.615
+               rho(ipft) = 0.694
             case (    4,14) ! Late-successional tropical/savannah.
-               rho(ipft) = 0.790
+               rho(ipft) = 0.834
             case default ! Just in case some PFT was forgotten, use global average
                rho(ipft) = rho_ref
             end select
@@ -3660,8 +3661,8 @@ subroutine init_pft_alloc_params()
             !------------------------------------------------------------------------------!
             !  Allometric equation based on Chave et al. 2014 and Falster et al. 2015      !
             !------------------------------------------------------------------------------!
-            b1Ht   (ipft) = c14f15_ht_xx(1) + c14f15_ht_xx(2) * log(rho(ipft))
-            b2Ht   (ipft) = c14f15_ht_xx(3)
+            b1Ht   (ipft) = 0.937
+            b2Ht   (ipft) = 0.593
             !----- hgt_ref is not used. ---------------------------------------------------!
             hgt_ref(ipft) = 0.0
          end select
@@ -4541,6 +4542,7 @@ subroutine init_pft_alloc_params()
    kplastic_LL   (:) = undef_real
    !----- Maximum LAI to consider for plasticity (TRAIT_PLASTICITY_SCHEME is positive). ---!
    laimax_plastic(:) = 6.0
+   kplastic_ref_lai(:) = 6.0 ! used when trait_plasticity_scheme=3
    !----- Linearised slope for when TRAIT_PLASTICITY_SCHEME is negative. ------------------!
    LMA_slope     (:) = 0.015  ! linearized slope (Trait_plasticity_scheme < 0)
    !---------------------------------------------------------------------------------------!
@@ -8193,6 +8195,7 @@ subroutine init_derived_params_after_xml()
                                    , stoma_psi_b               & ! intent(in)
                                    , stoma_psi_c               & ! intent(in)
                                    , C2B                       & ! intent(in)
+                                   , kplastic_ref_lai          & ! intent(in)   
                                    , hgt_max                   & ! intent(inout)
                                    , repro_min_h               & ! intent(inout)
                                    , dbh_crit                  & ! intent(inout)
@@ -8397,7 +8400,6 @@ subroutine init_derived_params_after_xml()
    real(kind=8)                      :: lnexphigh8
    real(kind=8)                      :: thigh_fun8
    !----- Local constants. ----------------------------------------------------------------!
-   real(kind=4)          , parameter :: kplastic_ref_lai = 6.0 ! used for trait_plasticity == 3
    character(len=str_len), parameter :: zero_table_fn = 'pft_sizes.txt'
    character(len=str_len), parameter :: photo_file    = 'photo_param.txt'
    character(len=str_len), parameter :: allom_file    = 'allom_param.txt'
@@ -9363,7 +9365,7 @@ subroutine init_derived_params_after_xml()
          case (3)
             if (is_tropical(ipft) .and. (.not. is_grass(ipft))) then
                 kplastic_vm0(ipft) = - 1.0 * (0.0121 * Vcmax25(ipft) + 0.31055)           &
-                                   / kplastic_ref_lai
+                                   / kplastic_ref_lai(ipft)
             endif
          end select
          !---------------------------------------------------------------------------------!
@@ -9396,7 +9398,7 @@ subroutine init_derived_params_after_xml()
             !----- Make sure this is applied to tropical trees only. ----------------------!
             if (is_tropical(ipft) .and. (.not. is_grass(ipft))) then
                 kplastic_rd0(ipft) = - 1.0 * (0.9487 * Rdark25 + 0.5872)                 &
-                                   / kplastic_ref_lai
+                                   / kplastic_ref_lai(ipft)
             end if
             !------------------------------------------------------------------------------!
          end select
@@ -9432,7 +9434,7 @@ subroutine init_derived_params_after_xml()
          select case (trait_plasticity_scheme)
          case (3)
             if (is_tropical(ipft) .and. (.not. is_grass(ipft))) then
-                kplastic_SLA(ipft) = 0.9962 / kplastic_ref_lai
+                kplastic_SLA(ipft) = 0.9962 / kplastic_ref_lai(ipft)
             endif
          end select
          !---------------------------------------------------------------------------------!
@@ -9468,7 +9470,7 @@ subroutine init_derived_params_after_xml()
          select case (trait_plasticity_scheme)
          case (3)
             if (is_tropical(ipft) .and. (.not. is_grass(ipft))) then
-                kplastic_LL(ipft) = 1.2 / kplastic_ref_lai
+                kplastic_LL(ipft) = 1.2 / kplastic_ref_lai(ipft)
             endif
          end select
 

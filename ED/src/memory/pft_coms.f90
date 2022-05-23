@@ -649,6 +649,7 @@ module pft_coms
    real   , dimension(n_pft)    :: LMA_slope    ! Slope for LMA:Height relationship
    !----- Parameter that limits plasticity (Vm, SLA, LTOR). -------------------------------!
    real   , dimension(n_pft)    :: laimax_plastic
+   real   , dimension(n_pft)    :: kplastic_ref_lai ! used when tps=3
    !----- The initialization parameters for SLA:  SLA = sla_pft_init for non-trop PFTs
    real   , dimension(n_pft)    :: sla_pft_init
    !----- Mass ratio between fine root and leaves [kg_fine_roots]/[kg_leaves]. ------------!
