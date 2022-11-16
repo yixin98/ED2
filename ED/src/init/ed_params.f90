@@ -3120,11 +3120,23 @@ subroutine init_pft_alloc_params()
             case ( 1, 5,16) ! Grasses
                rho(ipft) = 0.080
             case (    2,12) ! Early-successional tropical/savannah.
-               rho(ipft) = 0.534
+               rho(ipft) = 0.4010
             case (    3,13) ! Mid-successional tropical/savannah.
-               rho(ipft) = 0.694
+               rho(ipft) = 0.5697
             case (    4,14) ! Late-successional tropical/savannah.
-               rho(ipft) = 0.834
+               rho(ipft) = 0.7142
+            case (18)
+               rho(ipft) = 0.3495
+            case (19)
+               rho(ipft) = 0.5288
+            case (20)
+               rho(ipft) = 0.6490
+            case (21)
+               rho(ipft) = 0.4533
+            case (22)
+               rho(ipft) = 0.6102
+            case (23)
+               rho(ipft) = 0.7502
             case default ! Just in case some PFT was forgotten, use global average
                rho(ipft) = rho_ref
             end select
@@ -3674,8 +3686,17 @@ subroutine init_pft_alloc_params()
             !------------------------------------------------------------------------------!
             !  Allometric equation based on Chave et al. 2014 and Falster et al. 2015      !
             !------------------------------------------------------------------------------!
-            b1Ht   (ipft) = 0.937
-            b2Ht   (ipft) = 0.593
+            select case (ipft)
+            case (2)
+                    b1Ht(ipft)=0.886
+                    b2Ht(ipft)=0.6286
+            case (3)
+                    b1Ht(ipft)=0.8116
+                    b2Ht(ipft)=0.6403
+            case (4)
+                    b1Ht(ipft)=0.8036
+                    b2Ht(ipft)=0.6397
+            end select
             !----- hgt_ref is not used. ---------------------------------------------------!
             hgt_ref(ipft) = 0.0
          end select
@@ -9410,8 +9431,9 @@ subroutine init_derived_params_after_xml()
          case (3)
             !----- Make sure this is applied to tropical trees only. ----------------------!
             if (is_tropical(ipft) .and. (.not. is_grass(ipft))) then
-                kplastic_rd0(ipft) = - 1.0 * (0.9487 * Rdark25 + 0.5872)                 &
+               kplastic_rd0(ipft) = - 1.0 * (0.9487 * Rdark25 + 0.5872)                 &
                                    / kplastic_ref_lai(ipft)
+               !kplastic_rd0(ipft) = kplastic_vm0(ipft)
             end if
             !------------------------------------------------------------------------------!
          end select
