@@ -77,9 +77,16 @@ subroutine load_ed_ecosystem_params()
    pft_name16(21) = 'Early_tropical  '
    pft_name16(22) = 'Mid_tropical    '
    pft_name16(23) = 'Late_tropical   '
-
-
-   !---------------------------------------------------------------------------------------!
+   pft_name16(24) = 'Early_tropical  '
+   pft_name16(25) = 'Mid_tropical    '
+   pft_name16(26) = 'Late_tropical   '
+   pft_name16(27) = 'Early_tropical  '
+   pft_name16(28) = 'Mid_tropical    '
+   pft_name16(29) = 'Late_tropical   '
+   pft_name16(30) = 'Early_tropical  '
+   pft_name16(31) = 'Mid_tropical    '
+   pft_name16(32) = 'Late_tropical   '
+    !---------------------------------------------------------------------------------------!
 
 
 
@@ -93,7 +100,7 @@ subroutine load_ed_ecosystem_params()
    is_tropical(15)    = .true.
    is_tropical(16)    = .true.
    is_tropical(17)    = .true.
-   is_tropical(18:23) = .true.
+   is_tropical(18:32) = .true.
    !---------------------------------------------------------------------------------------!
 
 
@@ -106,7 +113,7 @@ subroutine load_ed_ecosystem_params()
    is_savannah(1:11)  = .false.
    is_savannah(12:14) = .true.
    is_savannah(15:17) = .false.
-   is_savannah(18:23) = .false.
+   is_savannah(18:32) = .false.
    !---------------------------------------------------------------------------------------!
 
 
@@ -116,7 +123,7 @@ subroutine load_ed_ecosystem_params()
    !---------------------------------------------------------------------------------------!
    is_liana(1:16)  = .false.
    is_liana(17)    = .true.
-   is_liana(18:23) = .false.
+   is_liana(18:32) = .false.
    !---------------------------------------------------------------------------------------!
 
 
@@ -129,7 +136,7 @@ subroutine load_ed_ecosystem_params()
    is_conifer(9:14)  = .false.
    is_conifer(15)    = .true.
    is_conifer(16:17) = .false.
-   is_conifer(18:23) = .false.
+   is_conifer(18:32) = .false.
    !---------------------------------------------------------------------------------------!
 
 
@@ -143,7 +150,7 @@ subroutine load_ed_ecosystem_params()
    is_grass(6:15)  = .false.
    is_grass(16)    = .true.
    is_grass(17)    = .false.
-   is_grass(18:23) = .false.
+   is_grass(18:32) = .false.
    !---------------------------------------------------------------------------------------!
 
 
@@ -3119,24 +3126,12 @@ subroutine init_pft_alloc_params()
             select case (ipft)
             case ( 1, 5,16) ! Grasses
                rho(ipft) = 0.080
-            case (    2,12) ! Early-successional tropical/savannah.
-               rho(ipft) = 0.4010
-            case (    3,13) ! Mid-successional tropical/savannah.
-               rho(ipft) = 0.5697
-            case (    4,14) ! Late-successional tropical/savannah.
-               rho(ipft) = 0.7142
-            case (18)
-               rho(ipft) = 0.3495
-            case (19)
-               rho(ipft) = 0.5288
-            case (20)
-               rho(ipft) = 0.6490
-            case (21)
-               rho(ipft) = 0.4533
-            case (22)
-               rho(ipft) = 0.6102
-            case (23)
-               rho(ipft) = 0.7502
+            case (    2,12,18,21,24,27,30) ! Early-successional tropical/savannah.
+               rho(ipft) = 0.4058
+            case (    3,13,19,22,25,28,31) ! Mid-successional tropical/savannah.
+               rho(ipft) = 0.5560
+            case (    4,14,20,23,26,29,32) ! Late-successional tropical/savannah.
+               rho(ipft) = 0.6678
             case default ! Just in case some PFT was forgotten, use global average
                rho(ipft) = rho_ref
             end select
@@ -3320,9 +3315,7 @@ subroutine init_pft_alloc_params()
 
 
    !----- Apply turnover:SLA relationship (but check for zero turnover to avoid FPE). -----!
-   SLA(:) = merge( sla_s0(:)                                                               &
-                 , sla_s0(:) * leaf_turnover_rate(:)**sla_s1(:)                            &
-                 , leaf_turnover_rate(:)*sla_s1(:) == 0.        )
+   SLA(:) = 18.4                                                               
    !---------------------------------------------------------------------------------------!
 
 
@@ -3687,15 +3680,15 @@ subroutine init_pft_alloc_params()
             !  Allometric equation based on Chave et al. 2014 and Falster et al. 2015      !
             !------------------------------------------------------------------------------!
             select case (ipft)
-            case (2)
-                    b1Ht(ipft)=0.886
-                    b2Ht(ipft)=0.6286
-            case (3)
-                    b1Ht(ipft)=0.8116
-                    b2Ht(ipft)=0.6403
-            case (4)
-                    b1Ht(ipft)=0.8036
-                    b2Ht(ipft)=0.6397
+            case (2,18,21,24,27,30)
+                    b1Ht(ipft)=0.7703
+                    b2Ht(ipft)=0.6478
+            case (3,19,22,25,28,31)
+                    b1Ht(ipft)=0.7703
+                    b2Ht(ipft)=0.6478
+            case (4,20,23,26,29,32)
+                    b1Ht(ipft)=0.7703
+                    b2Ht(ipft)=0.6478
             end select
             !----- hgt_ref is not used. ---------------------------------------------------!
             hgt_ref(ipft) = 0.0
@@ -3870,8 +3863,8 @@ subroutine init_pft_alloc_params()
             ! R2      = 0.521                                                              !
             ! RMSE    = 29.78                                                              !
             !------------------------------------------------------------------------------!
-            b1Ca(ipft) = 0.370
-            b2Ca(ipft) = 0.464
+            b1Ca(ipft) = 0.3353
+            b2Ca(ipft) = 0.5234
             !------------------------------------------------------------------------------!
          end select
          !---------------------------------------------------------------------------------!
@@ -4018,8 +4011,19 @@ subroutine init_pft_alloc_params()
             ! wild tropical, note that b1Bl has the unit of m2 leaf under this scenario    !
             ! and will be converted to leaf carbon using SLA in size2bl
             !------------------------------------------------------------------------------!
-            b1Bl(ipft) = exp( c14f15_la_wd(1) + c14f15_la_wd(2) * log(rho(ipft)))
-            b2Bl(ipft) = c14f15_la_wd(3)
+            !b1Bl(ipft) = exp( c14f15_la_wd(1) + c14f15_la_wd(2) * log(rho(ipft)))
+            !b2Bl(ipft) = c14f15_la_wd(3)
+            select case (ipft)
+            case(2,18,21,24,27,30)
+               b1Bl(ipft)=0.4115
+               b2Bl(ipft)=0.5837
+            case(3,19,22,25,28,31)
+               b1Bl(ipft)=0.4115
+               b2Bl(ipft)=0.5837
+            case(4,20,23,26,29,32)
+               b1Bl(ipft)=0.4115
+               b2Bl(ipft)=0.5837
+            end select
             !------------------------------------------------------------------------------!
 
          end select
@@ -5215,7 +5219,7 @@ subroutine init_pft_resp_params()
       case default ! Grasses, tropical trees, and lianas
          select case (economics_scheme)
          case (1)
-            root_turnover_rate(ipft) = 0.9 * leaf_turnover_rate(ipft)
+            root_turnover_rate(ipft) = 0.9 * 0.9755
          case default
             root_turnover_rate(ipft) = leaf_turnover_rate(ipft)
          end select

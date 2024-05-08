@@ -1455,7 +1455,7 @@ module reproduction
       !     In case anything is inconsitent, we print the information on screen and stop   !
       ! the simulation.                                                                    !
       !------------------------------------------------------------------------------------!
-      if (.not. all(ok_seedbank(:))) then
+      if (.not. (ok_seedbank(2) .and. ok_seedbank(3) .and. ok_seedbank(4))) then
          write(unit=*,fmt='(a)')  '|====================================================|'
          write(unit=*,fmt='(a)')  '|====================================================|'
          write(unit=*,fmt='(a)')  '|          !!!   Bseeds budget failed   !!!          |'
@@ -1467,11 +1467,11 @@ module reproduction
          write(unit=*,fmt='(a)')  '|----------------------------------------------------|'
          write(unit=*,fmt=fmth )  ' IPFT','REPRO_BEFORE','   REPRO_NOW','      BSEEDS'     &
                                          ,'   SEED_RAIN','       RESID','       TOLER'     &
-                                         ,'  ACCEPTABLE'
+                                         ,'  ACCEPTABLE','       MIN_RECRUIT_SIZE'
          do ipft=1,n_pft
             write(unit=*,fmt=fmtp ) ipft,pft_repro0(ipft),pft_repro(ipft),pft_bseeds(ipft) &
                                         ,pft_seedrain(ipft),resid_bseeds(ipft)             &
-                                        ,toler_bseeds(ipft),ok_seedbank(ipft)
+                                        ,toler_bseeds(ipft),ok_seedbank(ipft),min_recruit_size(ipft)
          end do
          write(unit=*,fmt='(a)')  '|----------------------------------------------------|'
          write(unit=*,fmt='(a)')  ' '
